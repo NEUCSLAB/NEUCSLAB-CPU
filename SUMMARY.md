@@ -2,10 +2,9 @@
 
 ## 实验内容
 
-
-* [git用法](experiment/git.md)
+* [git用法](README.md)
 * [fpga开发入门](experiment/fpga.md)
 
-----
+***
 
 * [参考资料](reference.md)
