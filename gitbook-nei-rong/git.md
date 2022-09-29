@@ -227,3 +227,4 @@ git clone <git-url>
 1. Git help(命令行输入git help)
 2. Git manual(命令行输入man git, linux限定)
 3. [Git菜鸟教程](https://www.runoob.com/git/git-tutorial.html)
+4. [Git入门教程](https://nju-projectn.github.io/ics-pa-gitbook/ics2022/git.html)
