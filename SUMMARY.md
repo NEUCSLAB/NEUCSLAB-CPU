@@ -6,8 +6,9 @@
 
 ## gitbook内容
 
-* [目录](gitbook-nei-rong/mu-lu.md)
-* [git用法](gitbook-nei-rong/git.md)
+* [目录](experiment/mu-lu.md)
+* [git用法](experiment/git.md)
+* [fpga开发入门](experiment/fpga.md)
 
 ----
 
