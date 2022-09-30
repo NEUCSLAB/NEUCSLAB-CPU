@@ -112,8 +112,10 @@ Xilinx提供了两种方式来使用硬件资源，一是Verilog原语，二是I
 
 一般而言，我们在进行设计时，数据通路的延时应该了然于心中，如果数据通路上出现了时序违例，就需要我们减少组合逻辑层次，或是增加寄存器采样，而这些都是可以在设计阶段避免的问题.  
 
+在进行布局布线之前，你需要确认你的输入输出端口已经绑定到对应的IO口上，已经进行了合理的时序约束，否则布局布线将无法通过. 不过，如果时序违例不太严重的话(WNS < 0.2ns)，可以尝试着进行上板验证.  
+
 ## 烧录
-点击Flow Navigator->PROGRAM AND DEBUG->Generate Bitstream生成比特流，一般到这时候基本都不会出问题了，之后将开发板连接上电脑，点击Flow Navigator->PROGRAM AND DEBUG->Open Hardware Manager->Open Target->Auto Connet，等待Vivado找到开发板后点击Program device，将程序烧录进板子即可.  
+点击Flow Navigator->PROGRAM AND DEBUG->Generate Bitstream生成比特流，一般到这时候基本都不会出问题了，之后将开发板连接上电脑，点击Flow Navigator->PROGRAM AND DEBUG->Open Hardware Manager->Open Target->Auto Connect，等待Vivado找到开发板后点击Program device，将程序烧录进板子即可.  
 
 程序一但烧录完成，电路结构就会形成，FPGA就会开始全速工作，因此无法像之前debug时那样随意观察，这时就需要集成逻辑分析器(Integrated Logic Analyzer, ILA)抓取信号了. ILA可以将待测信号的数据存入板上RAM中，通过线缆传输给Vivado显示. ILA也是电路的一部分，因此在布局布线前必须添加到电路中. 添加ILA可以通过Synthesized Design中的Set up debug实现，也可以通过ILA的IP核实现.  
 
@@ -231,5 +233,9 @@ endmodule
 
 我们设置一个单通道、数据宽度为4的ILA核，一个单通道、数据宽度为32的ILA核，将其例化至源文件中. clk端口接入时钟， probe端口接入待观测信号，之后综合->布局布线->生成比特流即可.  
 
-#### 观测 
+### 观测 
 烧录之后便会自动打开ILA窗口进行观察了.
+
+## 参考资料
+xilinx官方文档
+

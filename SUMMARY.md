@@ -4,11 +4,12 @@
 * [附加内容](extra.md)
 * [评分标准](ping-fen-biao-zhun.md)
 
-## gitbook内容
+## gitbook
 
 * [目录](experiment/mu-lu.md)
 * [Git用法](experiment/git.md)
 * [FPGA开发入门](experiment/fpga.md)
+* [FPGA开发进阶](experiment/fpga_advance.md)
 
 ***
 
