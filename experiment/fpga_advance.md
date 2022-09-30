@@ -48,7 +48,7 @@ LVTTL LVCMOS33 LVCMOS25 LVCMOS18 LVCMOS15 LVCMOS12 HSUL_12 HSTL_I HSTL_II HSTL_I
 
 从这里知道连接这条线的网络名叫LED1-LED4，在PDF中搜索LED1，就可以找到对应的管脚了  
 
-![原理图中Bank的位置](/img/Sch_Bank.png "原理图中Bank的位置")  
+![原理图中Bank的位置](/img/Sch_bank.png "原理图中Bank的位置")  
 
 可以看到是连接到了Bank17的A22、C19、B19、E18管脚，在I/O Planning中填入对应的Bank和Pin.  
 
@@ -170,7 +170,8 @@ Vivado是一个非常庞大的工具，它在提供硬件资源操作接口的�
 如果以后你有志向在FPGA方向上工作，相关的开发套件是一定要熟练掌握的，特别是Xilinx，大多数公司都在使用Xilinx的产品，因此Vivado几乎是唯一的选择. 当然，工具永远只是辅助，最关键的还是工程师本身的电路设计水平，这点在FPGA上体现得淋漓尽致.  
 
 ## 参考资料
-时序报告分析
-时序约束
-XDC文件
-TCL指令
+1. [FPGA电平标准](https://www.cnblogs.com/doincli/p/15234990.html)  
+2. 时序报告分析  
+3. 时序约束  
+4. XDC文件  
+5. TCL指令  
