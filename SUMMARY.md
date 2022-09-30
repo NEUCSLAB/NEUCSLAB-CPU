@@ -1,10 +1,14 @@
 # Table of contents
 
-## 实验内容
+* [设计要点](README.md)
+* [附加内容](extra.md)
+* [评分标准](ping-fen-biao-zhun.md)
 
+## gitbook内容
 
-* [git用法](experiment/git.md)
-* [fpga开发入门](experiment/fpga.md)
+* [目录](experiment/mu-lu.md)
+* [Git用法](experiment/git.md)
+* [FGPA开发入门](experiment/fpga.md)
 
 ----
 

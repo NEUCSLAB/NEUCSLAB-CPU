@@ -115,5 +115,121 @@ Xilinx提供了两种方式来使用硬件资源，一是Verilog原语，二是I
 ## 烧录
 点击Flow Navigator->PROGRAM AND DEBUG->Generate Bitstream生成比特流，一般到这时候基本都不会出问题了，之后将开发板连接上电脑，点击Flow Navigator->PROGRAM AND DEBUG->Open Hardware Manager->Open Target->Auto Connet，等待Vivado找到开发板后点击Program device，将程序烧录进板子即可.  
 
-程序一但烧录完成，电路结构就会形成，FPGA就会开始全速工作，因此无法像之前debug时那样随意观察，这时就需要集成逻辑分析器(Integrated Logic Analyzer, ILA)抓取信号了. ILA可以将待测信号的数据存入板上ram中，通过线缆传输给Vivado显示. ILA也是电路的一部分，因此在布局布线前必须添加到电路中. 添加ILA可以通过Synthesized Design中的Set up debug实现，也可以通过ILA的IP核实现.  
+程序一但烧录完成，电路结构就会形成，FPGA就会开始全速工作，因此无法像之前debug时那样随意观察，这时就需要集成逻辑分析器(Integrated Logic Analyzer, ILA)抓取信号了. ILA可以将待测信号的数据存入板上RAM中，通过线缆传输给Vivado显示. ILA也是电路的一部分，因此在布局布线前必须添加到电路中. 添加ILA可以通过Synthesized Design中的Set up debug实现，也可以通过ILA的IP核实现.  
 
+## 调试
+上板调试可能是最花时间的部分了，以往的实验可能是通过开发板上的灯来判断功能的正确性，但当你的电路工作频率达到Mhz级时，一周期仅有1us，肉眼根本无法分辨，而且我们在观察数据流时，不可能有这么多灯或者数码管给你显示. 你可能会想，要是能像仿真时那样直接把波形图显示出来就好了. 哎，Vivado确实提供了这个功能，它就是上一节提到的ILA. 本节主要讨论如何使用ILA抓取所需要的信号.  
+
+本节以流水灯实验为例进行讲解.  
+
+### 源码与逻辑分析
+先给出所用的程序源码
+```verilog {.line-numbers}
+`timescale 1ns / 1ps
+
+module led_test(             
+    sys_clk_p,      // Differentia system clock 200Mhz input on board
+    sys_clk_n,
+    rst_n,          // reset ,low active            
+    led,             // LED,use for control the LED signal on board
+);
+
+    input         sys_clk_p;
+    input         sys_clk_n;
+    input         rst_n;
+    output [3:0]  led;
+
+    reg [31:0]   timer;                  
+    reg [3:0]    led;
+
+    wire        sys_clk;
+    IBUFGDS u_ibufg_sys_clk   
+    (
+        .I  (sys_clk_p),            
+        .IB (sys_clk_n),          
+        .O  (sys_clk  )        
+    );          
+
+    always @(posedge sys_clk or negedge rst_n) begin
+        if (~rst_n)                           
+            timer <= 32'd0;                      
+        else if (timer == 32'd199_999_999)    
+            timer <= 32'd0;                      
+        else
+		    timer <= timer + 1'b1;            
+    end
+
+    always @(posedge sys_clk or negedge rst_n) begin
+        if (~rst_n)                      
+            led <= 4'b0000;                         
+        else if (timer == 32'd49_999_999)   
+            led <= 4'b0001;                 
+        else if (timer == 32'd99_999_999) 
+            led <= 4'b0010;                  
+        else if (timer == 32'd149_999_999)   
+            led <= 4'b0100;                                          
+        else if (timer == 32'd199_999_999)   
+            led <= 4'b1000;                         
+    end
+    
+endmodule
+```
+这段代码来源于黑金动力提供的开发板例程，从我们的角度来说，非常不建议你们这么写verilog代码，特别是最后一段的if嵌套. 我们使用这段例程的原因还是想提醒大家，不要过于信赖网上的例程，一定要经过自己的思考后再将例程融入自己的代码中. 记住，唯一能信赖的只有来自官方(Xilinx)的文档.  
+
+回到代码本身，这段代码实现了一个32位的循环计数器，每计数50000000次便会将LED循环左移一位，实现流水灯的效果. 如果我们需要对这个代码进行调试，那么关键值就是timer和led两个值.  
+
+当你要进行调试时，你需要先分析自己的代码，找到能帮助你分析电路状态的关键值，在下一小节中将其添加入ILA中.  
+
+### 添加ILA
+添加ILA有两种方式，我们会分别介绍，这两种方式最后实现的效果基本是一致的.
+
+#### Synthesized Design->Set up debug
+这是比较傻瓜化的方法，在完成综合之后便可以点开Set up debug添加观察信号.  
+
+![添加观察信号](/img/Vivado_set_up_debug.png "添加观察信号")
+
+将左侧nets中的信号拖入debug窗口即可，拖动led时会提示led无法访问，这是因为led是输出端口，我们需要使用led_OBUF这个输出缓冲信号进行观察.  
+
+![添加观察信号完成](/img/Vivado_set_up_debug_fin.png "添加观察信号完成")
+
+窗口内的4列分别是信号名、时钟域、驱动单元、探针类型，一般我们需要关注的只有时钟域，剩下的请自行学习其含义.  
+
+本实验中大部分电路都会处于同一时钟域中，跨时钟域的工作内容请自行学习.   
+
+接下来设置采样深度，这个值决定了你能采样到多长的数据，一般1024足矣. 如果你确定你需要采样更长的数据可以设置更大的采样深度. 但是要注意，采样深度越大，需要消耗的BRAM资源就越多，留给你使用的BRAM资源就越少，同时也会增加布线难度.  
+
+![设置采样深度](/img/Vivado_set_up_debug_conf.png "设置采样深度")
+
+完成后重新综合->布局布线->生成比特流即可.  
+
+#### 例化ILA核
+你可能会发现，上面的网络列表和程序中的线网不一致，这是因为在综合和布局布线的过程中编译器对代码进行了优化，导致部分线路名称发生了改变或是直接被优化掉了. 若要解决这个问题，我们可以用关键字控制编译器，也可以手动例化ILA.  
+
+先说关键字，Vivado提供了两个关键字来控制编译器行为.
+```verilog
+(* DONT_TOUCH = "TRUE" *)
+```
+指示编译器原样翻译下一行的电路，不进行优化. 若为行为块或例化模块，则整个模块都不会优化.
+```verilog
+(*mark_debug = "true"*)
+```
+指示编译器将后面这条线添加至观察列表中，编译器不进行优化.  
+
+一般来说，我们需要尽量避免通过这些行为去约束编译器. 因为对于初学者而言，我们的电路设计能力比较低，写出来的电路不能很好的贴合硬件本身，需要将优化过程交给编译器去处理. 当我们的电路设计水平上来之后，能够自己去设计电路实现细节甚至是如何放置各模块的位置，那时候你会发现还有更多关键字等着你控制. Xilinx给予工程师自由发挥的空间还是非常大的.  
+
+那么，不用关键字的话，就需要请出我们的ILA IP核了，直接在IP Catalog里面就可以搜索到.  
+
+![ILA IP](/img/Vivado_IP_ila.png "ILA IP")  
+
+和配置其他IP核一样，双击打开自定义窗口，第一页设置通道数和采样深度  
+
+![ILA IP配置页1](/img/Vivado_IP_ila_conf_p1.png "ILA IP配置页1")  
+
+第二页设置各个通道的数据宽度
+
+![ILA IP配置页2](/img/Vivado_IP_ila_conf_p2.png "ILA IP配置页2")
+
+我们设置一个单通道、数据宽度为4的ILA核，一个单通道、数据宽度为32的ILA核，将其例化至源文件中. clk端口接入时钟， probe端口接入待观测信号，之后综合->布局布线->生成比特流即可.  
+
+#### 观测 
+烧录之后便会自动打开ILA窗口进行观察了.
