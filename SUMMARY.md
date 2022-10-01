@@ -1,10 +1,10 @@
 # Table of contents
 
-* [设计要点](README.md)
+* [前言](README.md)
 * [附加内容](extra.md)
-* [评分标准](ping-fen-biao-zhun.md)
+* [评分标准](grade.md)
 
-## gitbook
+## 实验指导
 
 * [目录](experiment/mu-lu.md)
 * [Git用法](experiment/git.md)
