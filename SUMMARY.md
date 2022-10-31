@@ -4,12 +4,16 @@
 * [附加内容](extra.md)
 * [评分标准](grade.md)
 
+## 工具指导
+
+* [目录](tools/catalogue.md)
+* [Git用法](tools/git.md)
+* [FPGA开发入门](tools/fpga.md)
+* [FPGA开发进阶](tools/fpga_advance.md)
+
 ## 实验指导
 
-* [目录](experiment/mu-lu.md)
-* [Git用法](experiment/git.md)
-* [FPGA开发入门](experiment/fpga.md)
-* [FPGA开发进阶](experiment/fpga_advance.md)
+* [目录](experiment/catalogue.md)
 
 ***
 
