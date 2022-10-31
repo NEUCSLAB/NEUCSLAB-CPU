@@ -14,6 +14,7 @@
 ## 实验指导
 
 * [目录](experiment/catalogue.md)
+* [Verilog基础回顾](experiment/verilog.md)
 
 ***
 
