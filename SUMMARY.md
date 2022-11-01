@@ -17,6 +17,7 @@
 * [Verilog基础回顾](experiment/verilog.md)
 * [译码器与编码器](experiment/decoder.md)
 * [加法器与ALU](experiment/alu.md)
+* [计数器与时钟](experiment/clock.md)
 
 ***
 
