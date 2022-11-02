@@ -69,7 +69,7 @@ assign rd2_o = (~|ra2_i) ? rf[ra2_i] : 32'h0;
 
 与寄存器类似的思路，在读取端使用组合逻辑来加速读取。当然不需要我们自己写，Xilinx依然提供了对应的IP核，这就是DRAM。  
 
-在IP Catalog中搜索memory，并选中Block Memory Generator，开始生成DRAM，内容与生成RAM类似，只需要在端口处选择所需要的输入输出类型即可，端口依然选择简单双端口。  
+在IP Catalog中搜索memory，并选中Distributed Memory Generator，开始生成DRAM，内容与生成RAM类似，只需要在端口处选择所需要的输入输出类型即可，端口依然选择简单双端口。  
 
 ![DRAM IP核配置](/img/Vivado_dram_inst_1.png "DRAM IP核配置")
 
