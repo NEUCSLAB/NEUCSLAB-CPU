@@ -149,7 +149,7 @@ module full_add_8b (
 endmodule
 ```
 
-当然，verilog并不需要我们做这么多工作，因此我们可以通过最简单的方式去写一个加法器  
+当然，verilog并不需要我们做这么多工作，以上的例化可以用for generate语句简化，也可以通过最简单的方式去写一个加法器  
 
 ```verilog
 module add_8b (
