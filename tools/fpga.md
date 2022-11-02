@@ -18,11 +18,11 @@ FPGA的开发语言是VHDL和Verilog HDL，这两种语言都被称为硬件描�
 
 Vivado可以在官网上下载，下载时请确保自己电脑上有着100G以上的空闲空间(安装包40G，安装后占用60G+的空间).  
 
-不同版本的Vivado工程相互打开会有一定的问题，因此我们要求所有同学都使用Vivado2020.1版本.  
+不同版本的Vivado工程相互打开会有一定的问题.  
 
 安装过程需要自己参考[Vivado Design Suite User Guide: Release Notes, Installation, and Licensing (UG973)](https://docs.xilinx.com/r/en-US/ug973-vivado-release-notes-install-license/Download-the-Installation-File)进行安装. 不要诧异，学会读官方文档是你入门FPGA开发的第一步，你使用FPGA上所有的资源时，最权威的参考书就是官方的文档.  
 
-此处，我们给出安装Vivado时部分需要自己选定的细节部分，剩下的需要同学们自己参考文档进行操作.  
+此处，我们给出安装Vivado时部分需要自己选定的细节部分，剩下的需要同学们自己参考文档进行操作. 版本以2020.1为例，因为这个版本已经被归档了，新版本可以直接在Vivado下载页面找到.  
 
 1. 下载2020.1版本需要前往[Vivado版本归档页面](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive.html)，点击2020.1寻找安装包.
 2. 你需要下载的是Vivado Design Suite - HLx Editions - 2020.1  Full Product Installation中的 Vivado HLx 2020.1: All OS installer Single-File Download (TAR/GZIP - 35.51 GB)，注意流量消耗. 建议有一个人下载好后相互拷贝一下.
@@ -43,7 +43,7 @@ Vivado可以在官网上下载，下载时请确保自己电脑上有着100G以�
 
 ![Vivado芯片类型](/img/Vivado_new_project_part.png "Vivado芯片类型")  
 
-这里需要选择我们的开发板xc7a100t，否则程序烧进去是可能不工作的. 之后确认配置无误即可生成工程.  
+这里需要选择我们的开发板xc7a100t325，否则程序烧进去是可能不工作的. 之后确认配置无误即可生成工程.  
 
 ## 工程文件 
 我们推荐初学者通过Vivado来管理工程文件，方法是在Source窗口点击加号新建文件.  
