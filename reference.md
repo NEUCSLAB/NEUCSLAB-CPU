@@ -6,3 +6,4 @@
 5. https://colabdocs.cqu.ai/ 
 6. https://nju-projectn.github.io/dlco-lecture-note/index.html 
 7. https://yl4869.github.io/Tools-for-CSer 
+8. [<广告位招租>](https://github.com/riscv/riscv-isa-manual/releases/download/draft-20210813-7d0006e/riscv-spec.pdf)
