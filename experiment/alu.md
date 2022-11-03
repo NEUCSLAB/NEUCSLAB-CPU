@@ -188,11 +188,22 @@ endmodule
 
 ## 加减法器
 
-现在我们想通过一个加法器完成加减法运算，应该如何实现呢？答案是使用补码。  
+现在我们想通过一个加法器完成加减法运算，应该如何实现呢？答案是使用补码，将A-B的操作转化为A+(-B)来计算，只需要计算-B的补码即可。对于补码而言，–B的补码就是将B连同符号位在内全部取反再加一的过程。  
 
-于是现在思路就很清晰了，首先我们需要一个运算标志位标志进行加法还是减法，还需要对操作数进行求补运算，最后输出结果。关键点就在于求补。  
+于是现在思路就很清晰了，首先我们需要一个运算标志位标志进行加法还是减法，还需要对操作数进行求补运算，最后输出结果。关键点就在于求补。我们之前学的求补运算是当原码为负数时，将原码取反加1。因此我们的加减法器结构图就呼之欲出了。
 
-我们之前学的求补运算是当原码为负数时，将原码取反加1，取反比较简单，关键是加1，这时想想上面的加法器推导过程，是不是意识到了一点，这里不涉及进位运算，因此可以直接使用异或运算代替加1运算。因此我们的加减法器结构图就呼之欲出了。  
+![加减法器](/img/Add_sub_simple.png "加减法器")
+
+嗯，有点不够优雅，而且还引入了一层额外的加法器。因此我们可以简单做一下优化
+
+![加减法器](/img/Add_sub.png "加减法器")
+
+<del>不觉得很酷吗，作为一名物联网专业的学生，我觉得这太酷了，很符合我对计组课设的想象，科技并带着趣味。</del>  
+
+简单解释一下吧，这个拓展至32位的模块指的是输入1'b0时输出32'h0000，输入1'b1时输出32'hffff。对于异或运算来说，任何数与0异或等于它本身，与1异或等于它取反，因此通过一个异或门就可以将取反运算完成，RISC-V指令集中也是这么处理NOT指令的。而关键的加1运算，则将标志位送入加法器的Cin端，当进行减法运算时，标志位直接作为那个需要加的进位1参与运算，大大减小了逻辑复杂度。  
+
+加减法器的输出有4个，一个Result是运算结果，剩下的三个都是标志位。CarryOut是运算进位标识，Zero是运算结果为0标识，OverFlow是运算结果溢出标识，都可以在加法器输出端通过组合逻辑实现。  
+
 
 ## 移位器
 
@@ -210,11 +221,92 @@ endmodule
 - 逻辑移位：空缺处补0
 - 算术移位：保证符号位不改变，算术左移同逻辑左移一样，算术右移最左面的空位补符号位
 
+一个4位循环右移移位寄存器的verilog代码表示如下
+
+```verilog
+module shift_reg(
+	input       		clk_i,
+    input       		rst_i,
+
+    input       		ce_i,
+    input		[3:0]	load_data_i,
+    input       		load_en_i,
+
+    output  reg	[3:0]	data_o
+);
+
+	always @(posedge clk_i or posedge rst_i) begin
+    	if(rst_i) begin
+        	data_o <= 4'b0;
+		end else begin
+			casex{load_en_i, ce_i}
+				2'b00:begin
+					data_o <= data_o;
+				end
+				2'b01:begin
+					data_o <= {data_o[0], data_o[7:1]};
+				end
+				2'b1x:begin
+					data_o <= load_data_i;
+				end
+			endcase
+		end
+	end
+
+endmodule
+```
+
 ### 桶型移位器
 
 在CPU中，我们往往需要对数据进行移位操作。但是传统的移位寄存器一个周期只能移动一位，当要进行多位移位时需要多个时钟周期，效率较低。桶形移位器采用组合逻辑的方式来实现同时移动多位，在效率上优势极大。因此，桶形移位器常常被用在ALU中来实现移位。  
 
 桶型移位器的实质是通过列举所有的移位可能，通过复用器来选通对应的移位结果。  
+
+一个4位循环右移桶型移位器的verilog代码表示如下
+```verilog
+module shift_reg(
+	input       		clk_i,
+    input       		rst_i,
+
+    input       		ce_i,
+    input		[3:0]	load_data_i,
+	input		[1:0]	shift_i,
+
+    output  reg	[3:0]	data_o
+);
+
+	reg			[3:0]	shift_data;
+
+	always @(*) begin
+		case(shift_i)
+			2'b00:begin
+				shift_data <= {shift_data};
+			end
+			2'b01:begin
+				shift_data <= {shift_data[0], shift_data[3:1]};
+			end
+			2'b10:begin
+				shift_data <= {shift_data[1:0], shift_data[3:2]};
+			end
+			2'b11:begin
+				shift_data <= {shift_data[2:0], shift_data[3]};
+			end
+		endcase
+	end
+
+	always @(posedge clk_i or posedge rst_i) begin
+    	if(rst_i) begin
+        	data_o <= 4'b0;
+		end else begin
+			if(ce_i) begin
+				data_o <= shift_data;
+			end else begin
+				data_o <= data_o;
+		end
+	end
+
+endmodule
+```
 
 ## ALU  
 
@@ -240,4 +332,6 @@ RISC-V基础指令集RV32I只支持32位整型数值的操作。操作数可以�
 |110|比较大小|if A<B then output = 1; else output = 0;|
 |111|判断相等|if A==B then output = 1; else output = 0;|
 
-请注意操作数溢出的情况
+请注意操作数溢出的情况  
+
+提示：通过3-8译码器将指令解析后，利用复用器选通不同运算的数值通路即可。如果你不理解这句话，可以回去看看加减法器是怎么解析加/减指令的。  
