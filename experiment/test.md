@@ -4,54 +4,35 @@
 
 ## Testbench
 
-Testbench文件示例如下(施工中)
+下载群里上传的测试工程并打开。测试工程编写的版本是Vivado2019.2，请确认你的Vivado高于或正处于这个版本。
+
+在工程内导入你的cpu文件，在soc_lite_top.v文件的第137行将mycpu的例化块更换为你的cpu。  
+
+你的cpu应该给出以下输入输出端口： 
+
+时钟与复位，外部中断可选
 ```verilog
-module ddr_tb();
-
-    localparam      period = 5;
-    reg             clk;
-    reg             rst_i;
-    reg             ctrl_en;
-    
-    reg             ddr3_cmd_finish;
-
-    reg     [511:0] ddr_data[34815:0];
-    reg     [511:0] ddr_din;
-
-    reg     [511:0] ddr_fifo_din[127:0];
-    reg     [6:0]   ddr_fifo_wr_pos;
-    reg     [6:0]   ddr_fifo_rd_pos;
-
-    always @(posedge clk) begin
-        casex({rd_cdf_en,ddr_app_rdf_rden_o})
-            2'b10:begin //write
-                ddr_fifo_din[ddr_fifo_wr_pos - 1'b1]   <= ddr_din;
-                ddr_fifo_wr_pos                 <= ddr_fifo_wr_pos + 7'b1;
-            end
-            2'b01:begin //read
-                ddr_app_rdf_data_i              <= ddr_fifo_din[ddr_fifo_rd_pos];
-                ddr_fifo_rd_pos                 <= ddr_fifo_rd_pos + 7'b1;
-            end
-            2'b11:begin //r&w
-                ddr_fifo_din[ddr_fifo_wr_pos - 1'b1]   <= ddr_din;
-                ddr_fifo_wr_pos                 <= ddr_fifo_wr_pos + 7'b1;
-                ddr_app_rdf_data_i              <= ddr_fifo_din[ddr_fifo_rd_pos];
-                ddr_fifo_rd_pos                 <= ddr_fifo_rd_pos + 7'b1;
-            end
-        endcase
-    end
-
-    initial begin
-        $readmemb("D:\\ProjectSource\\IOdelay\\testdata\\data.txt",ddr_data);
-    end
-
-    //时钟
-    always #(period) clk = ~clk;
-
-    //instantiation of your cpu
+    .clk              (cpu_clk   ),
+    .rst_n            (cpu_resetn),  //low active
+    .ext_int          (6'd0      ),  //interrupt,high active
 ```
-
-在data.txt中书写你的汇编代码，启动仿真即可对指令进行测试。  
+指令ram读写端口
+```verilog
+    .inst_sram_en     (cpu_inst_en   ),
+    .inst_sram_we     (cpu_inst_wen  ),
+    .inst_sram_addr   (cpu_inst_addr ),
+    .inst_sram_wdata  (cpu_inst_wdata),
+    .inst_sram_rdata  (cpu_inst_rdata),
+```
+数据ram读写端口
+```verilog
+    .data_sram_en     (cpu_data_en   ),
+    .data_sram_we     (cpu_data_wen  ),
+    .data_sram_addr   (cpu_data_addr ),
+    .data_sram_wdata  (cpu_data_wdata),
+    .data_sram_rdata  (cpu_data_rdata),
+```
+指令ram和数据ram已经在soc_lite_top.v为你例化好了，你只需要将接口接上即可。
 
 ## 汇编器
 
