@@ -24,6 +24,7 @@
 * [单周期指令的执行时间](experiment/teriod.md)
 * [测试你的CPU](experiment/test.md)
 * [流水线(了解)](experiment/pipe.md)
+* [一个64位CPU的设计](/experiment/cpu.md)
 
 ***
 
